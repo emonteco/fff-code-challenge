@@ -3,80 +3,67 @@ import { getUsers } from '../../services/users';
 import User from '../User';
 import styles from './styles.module.css';
 
-const LIMIT = 10;
 const filterUsers = (users, search) => users.filter((user) =>
-  user.firstName.includes(search) || user.lastName.includes(search));
+  `${user.name.first} ${user.name.last}`.includes(search));
 
-const Products = () => {
+const Users = () => {
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState(null);
 
-  const displayedUsers = filteredUsers.length ? filteredUsers : users;
-  
-  const onClickLoadMore = () => {
-    setPage((prevState) => (prevState + 1));
-  };
+  const displayedUsers = filteredUsers ? filteredUsers : users;
 
-  const onSearchChange = (e) => {
-    setSearch(e.target.value);
-  };
+  const onSearchChange = (e) => setSearch(e.target.value);
 
-  const onSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const resp = filterUsers(users, search);
     setFilteredUsers(resp);
   };
 
+  // get list of users
   useEffect(() => {
-    const fetchUsers = async (page) => {
+    const fetchUsers = async () => {
       setLoading(true);
       try {
-        const { data } = await getUsers(LIMIT, page);
+        const { results } = await getUsers();
         setLoading(false);
-        setUsers((prevState) => ([
-          ...prevState,
-          ...data,
-        ]));
+        setUsers(results);
       } catch (error) {
         setLoading(false);
         setError(error);
       }
     };
-    fetchUsers(page);
-  }, [page]);
+    fetchUsers();
+  }, []);
+
+  if (loading) return <div className={styles.loading}>Loading...</div>
 
   if (error) return <div>{error}</div>
 
   return (
-    <div>
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          className={styles.search}
-          value={search}
-          onChange={onSearchChange}
-          placeholder="Search"
-        />
-      </form>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        className={styles.search}
+        value={search}
+        onChange={onSearchChange}
+        placeholder="Search"
+      />
       <ol className={styles.list}>
       {displayedUsers.map((user) => (
         <User
-          key={user.id}
-          firstName={user.firstName}
-          lastName={user.lastName}
+          key={user.id.value}
+          firstName={user.name.first}
+          lastName={user.name.last}
+          email={user.email}
         />
       ))}
       </ol>
-      {loading && (<div className={styles.loading}>Loading...</div>)}
-      {users.length ? (
-        <button type="button" className={styles.button} onClick={onClickLoadMore}>Load More</button>
-      ) : null}
-    </div>
+    </form>
   );
 };
 
-export default Products;
+export default Users;

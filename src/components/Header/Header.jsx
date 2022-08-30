@@ -1,6 +1,6 @@
 const Header = () => (
   <div>
-    <h1>Users</h1>
+    <h1>Random Users</h1>
   </div>
 );
 
