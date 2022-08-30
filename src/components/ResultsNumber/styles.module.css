@@ -1,0 +1,12 @@
+.container {
+  margin-bottom: 20px;
+}
+
+.container button {
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.container button:disabled {
+  pointer-events: none;
+}

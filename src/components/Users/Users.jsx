@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getUsers } from '../../services/users';
 import User from '../User';
+import ResultsNumber from '../ResultsNumber';
 import styles from './styles.module.css';
 
 const filterUsers = (users, search) => users.filter((user) =>
@@ -12,6 +13,7 @@ const Users = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [filteredUsers, setFilteredUsers] = useState(null);
+  const [resultsNumber, setResultsNumber] = useState(10);
 
   const displayedUsers = filteredUsers ? filteredUsers : users;
 
@@ -28,7 +30,7 @@ const Users = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const { results } = await getUsers();
+        const { results } = await getUsers({ results: resultsNumber });
         setLoading(false);
         setUsers(results);
       } catch (error) {
@@ -37,32 +39,37 @@ const Users = () => {
       }
     };
     fetchUsers();
-  }, []);
-
-  if (loading) return <div className={styles.loading}>Loading...</div>
+  }, [resultsNumber]);
 
   if (error) return <div>{error}</div>
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        className={styles.search}
-        value={search}
-        onChange={onSearchChange}
-        placeholder="Search"
-      />
-      <ol className={styles.list}>
-      {displayedUsers.map((user) => (
-        <User
-          key={user.id.value}
-          firstName={user.name.first}
-          lastName={user.name.last}
-          email={user.email}
+    <>
+      <ResultsNumber selected={resultsNumber} onClick={setResultsNumber} />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className={styles.search}
+          value={search}
+          onChange={onSearchChange}
+          placeholder="Search"
         />
-      ))}
-      </ol>
-    </form>
+      </form>
+      {loading
+        ? (<div className={styles.loading}>Loading...</div>)
+        : (
+        <ol className={styles.list}>
+          {displayedUsers.map((user) => (
+            <User
+              key={user.id.value}
+              firstName={user.name.first}
+              lastName={user.name.last}
+              email={user.email}
+            />
+          ))}
+        </ol>
+      )}
+    </>
   );
 };
 
