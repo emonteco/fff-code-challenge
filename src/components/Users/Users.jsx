@@ -52,7 +52,7 @@ const Products = () => {
   if (error) return <div>{error}</div>
 
   return (
-    <div className={styles.container}>
+    <div>
       <form onSubmit={onSubmit}>
         <input
           type="text"
@@ -62,16 +62,15 @@ const Products = () => {
           placeholder="Search"
         />
       </form>
-      <div className={styles.list}>
+      <ol className={styles.list}>
       {displayedUsers.map((user) => (
         <User
           key={user.id}
           firstName={user.firstName}
           lastName={user.lastName}
-          picture={user.picture}
         />
       ))}
-      </div>
+      </ol>
       {loading && (<div className={styles.loading}>Loading...</div>)}
       {users.length ? (
         <button type="button" className={styles.button} onClick={onClickLoadMore}>Load More</button>
