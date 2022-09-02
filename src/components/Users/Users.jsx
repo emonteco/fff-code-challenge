@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getUsers } from '../../services/users';
-import User from '../User';
+import Filter from '../Filter'
 import ResultsNumber from '../ResultsNumber';
-import styles from './styles.module.css';
+import UserList from '../UserList/UserList';
 
 const filterUsers = (users, search) => users.filter((user) =>
-  `${user.name.first} ${user.name.last}`.includes(search));
+  `${user.name.first} ${user.name.last}`.toLowerCase().includes(search.toLowerCase()));
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -17,7 +17,7 @@ const Users = () => {
 
   const displayedUsers = filteredUsers ? filteredUsers : users;
 
-  const onSearchChange = (e) => setSearch(e.target.value);
+  const handleSearchChange = (e) => setSearch(e.target.value);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -46,29 +46,8 @@ const Users = () => {
   return (
     <>
       <ResultsNumber selected={resultsNumber} onClick={setResultsNumber} />
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className={styles.search}
-          value={search}
-          onChange={onSearchChange}
-          placeholder="Search"
-        />
-      </form>
-      {loading
-        ? (<div className={styles.loading}>Loading...</div>)
-        : (
-        <ol className={styles.list}>
-          {displayedUsers.map((user) => (
-            <User
-              key={user.id.value}
-              firstName={user.name.first}
-              lastName={user.name.last}
-              email={user.email}
-            />
-          ))}
-        </ol>
-      )}
+      <Filter search={search} onChange={handleSearchChange} onSubmit={handleSubmit} />
+      <UserList users={displayedUsers} loading={loading} />
     </>
   );
 };
